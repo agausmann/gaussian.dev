@@ -23,7 +23,7 @@ author: "Adam Gausmann"
 email: "agausmann@fastmail.com"
 description: "Sharing my computing adventures with you!"
 baseurl: ""
-url: "https://gaussian.dev/"
+url: "https://gaussian.dev"
 github_username: "agausmann"
 
 theme: minima
