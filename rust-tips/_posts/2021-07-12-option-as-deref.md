@@ -43,10 +43,9 @@ impl Foo {
 }
 ```
 
-So what's happening here? You can see in the source code (go to the [method
-documentation][`Option::as_deref`] and click \[src\]), it looks very similar to
-our own long-hand implementation, but more generic. This is what it looks like,
-at the time of writing:
+So what's happening here? You can see in the [source code][src], it looks very
+similar to our own long-hand implementation, but more generic. This is what it
+looks like, at the time of writing (Rust 1.53.0):
 
 ```rust 
 impl<T: Deref> Option<T> {
@@ -71,7 +70,7 @@ pairs, like `Vec<T>` and `[T]`, `CString` and `CStr`, and even `Box<T>` and
 `T`. [^2]
 
 Another example where this may be useful is in implementations of the [`Error`
-trait][`Error`]. Suppose I have a error type that looks like this:
+trait][`Error`]. Suppose I have an error type that looks like this:
 
 ```rust
 pub struct MyError {
@@ -159,6 +158,7 @@ still work and would still provide us with an `Option<&str>` because of this
 impl. And it would also work for replacing `Vec<T>` with a `Box<[T]>`.
 
 [`Option::as_deref`]: https://doc.rust-lang.org/stable/std/option/enum.Option.html#method.as_deref
+[src]: https://doc.rust-lang.org/1.53.0/src/core/option.rs.html#1181
 [`Option::as_deref_mut`]: https://doc.rust-lang.org/stable/std/option/enum.Option.html#method.as_deref_mut
 [`Result::as_deref`]: https://doc.rust-lang.org/stable/std/result/enum.Result.html#method.as_deref
 [`Result::as_deref_mut`]: https://doc.rust-lang.org/stable/std/result/enum.Result.html#method.as_deref_mut
