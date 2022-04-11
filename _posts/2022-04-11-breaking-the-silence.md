@@ -2,7 +2,7 @@
 layout: post
 title:  "Breaking the Silence"
 date:   2022-04-11
-categories: meta,ramblings
+categories: meta
 ---
 
 It has been 9 months since my last post. Not because I didn't do anything
