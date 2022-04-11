@@ -18,4 +18,6 @@ feel free to browse my [GitHub profile][github] in the meantime.
 [rust]: https://rust-lang.org
 [github]: https://github.com/agausmann
 
+---
+
 {% include license-notice.html %}
