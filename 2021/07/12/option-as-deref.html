@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Rust Tip: Option::as_deref and friends | gaussian.dev</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Rust Tip: Option::as_deref and friends" />
+<meta name="author" content="Adam Gausmann" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In Rust, it is not uncommon to have to convert something like &amp;Option&lt;String&gt; into Option&lt;&amp;str&gt;. For example, imagine I’m storing an optional text description in a type, like this:" />
+<meta property="og:description" content="In Rust, it is not uncommon to have to convert something like &amp;Option&lt;String&gt; into Option&lt;&amp;str&gt;. For example, imagine I’m storing an optional text description in a type, like this:" />
+<link rel="canonical" href="https://gaussian.dev/2021/07/12/option-as-deref.html" />
+<meta property="og:url" content="https://gaussian.dev/2021/07/12/option-as-deref.html" />
+<meta property="og:site_name" content="gaussian.dev" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-07-12T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Rust Tip: Option::as_deref and friends" />
+<script type="application/ld+json">
+{"datePublished":"2021-07-12T00:00:00+00:00","description":"In Rust, it is not uncommon to have to convert something like &amp;Option&lt;String&gt; into Option&lt;&amp;str&gt;. For example, imagine I’m storing an optional text description in a type, like this:","url":"https://gaussian.dev/2021/07/12/option-as-deref.html","@type":"BlogPosting","dateModified":"2021-07-12T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://gaussian.dev/2021/07/12/option-as-deref.html"},"author":{"@type":"Person","name":"Adam Gausmann"},"headline":"Rust Tip: Option::as_deref and friends","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://gaussian.dev/feed.xml" title="gaussian.dev" />
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">gaussian.dev</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Rust Tip: Option::as_deref and friends</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="2021-07-12T00:00:00+00:00" itemprop="datePublished">Jul 12, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>In Rust, it is not uncommon to have to convert something like <code class="language-plaintext highlighter-rouge">&amp;Option&lt;String&gt;</code>
+into <code class="language-plaintext highlighter-rouge">Option&lt;&amp;str&gt;</code>. For example, imagine I’m storing an optional text
+description in a type, like this:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">struct</span> <span class="n">Foo</span> <span class="p">{</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="cm">/* ... */</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>If I wanted someone with a reference to a <code class="language-plaintext highlighter-rouge">Foo</code> to be able to access the
+value of the description, I could create a getter, which usually looks like
+this:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span> <span class="n">Foo</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">description</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="nb">str</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.description</span><span class="nf">.as_ref</span><span class="p">()</span><span class="nf">.map</span><span class="p">(|</span><span class="n">string</span><span class="p">|</span> <span class="n">string</span><span class="nf">.as_str</span><span class="p">())</span>
+
+        <span class="c">// Or:</span>
+        <span class="c">// self.description.as_ref().map(String::as_str)</span>
+
+        <span class="c">// Or even (because String implements Deref&lt;Target = str&gt;):</span>
+        <span class="c">// self.description.as_ref().map(|string| &amp;*string)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>However, you can write this even more concisely, using <a href="https://doc.rust-lang.org/stable/std/option/enum.Option.html#method.as_deref"><code class="language-plaintext highlighter-rouge">Option::as_deref</code></a>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span> <span class="n">Foo</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">description</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="nb">str</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.description</span><span class="nf">.as_deref</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>So what’s happening here? You can see in the <a href="https://doc.rust-lang.org/1.53.0/src/core/option.rs.html#1181">source code</a>, it looks very
+similar to our own long-hand implementation, but more generic. This is what it
+looks like, at the time of writing (Rust 1.53.0):</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Deref</span><span class="o">&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">as_deref</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="nn">T</span><span class="p">::</span><span class="n">Target</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">self</span><span class="nf">.as_ref</span><span class="p">()</span><span class="nf">.map</span><span class="p">(|</span><span class="n">t</span><span class="p">|</span> <span class="n">t</span><span class="nf">.deref</span><span class="p">())</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When I call <code class="language-plaintext highlighter-rouge">some_option.as_deref()</code>, it takes a reference to the inner value, and
+dereferences it using the type’s <code class="language-plaintext highlighter-rouge">Deref</code> implementation. In our specific
+case, <code class="language-plaintext highlighter-rouge">String</code> implements <code class="language-plaintext highlighter-rouge">Deref&lt;Target = str&gt;</code>, so it goes from
+an <code class="language-plaintext highlighter-rouge">&amp;Option&lt;String&gt;</code>, to an <code class="language-plaintext highlighter-rouge">Option&lt;&amp;String&gt;</code>, to an <code class="language-plaintext highlighter-rouge">Option&lt;&amp;str&gt;</code>. Just like
+our original code!</p>
+
+<p>This works for any type that implements <code class="language-plaintext highlighter-rouge">Deref</code>. In this case, <code class="language-plaintext highlighter-rouge">String</code>
+implements <code class="language-plaintext highlighter-rouge">Deref&lt;Target = str&gt;</code>, which allows a <code class="language-plaintext highlighter-rouge">&amp;String</code> to be converted into
+<code class="language-plaintext highlighter-rouge">&amp;str</code>. In human terms, we would call <code class="language-plaintext highlighter-rouge">String</code> (a string buffer) the “owned”
+string type, and <code class="language-plaintext highlighter-rouge">str</code> (a string slice) as the “borrowed” string type. <sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup>
+This implementation is also provided for other “owned” and “borrowed” type
+pairs, like <code class="language-plaintext highlighter-rouge">Vec&lt;T&gt;</code> and <code class="language-plaintext highlighter-rouge">[T]</code>, <code class="language-plaintext highlighter-rouge">CString</code> and <code class="language-plaintext highlighter-rouge">CStr</code>, and even <code class="language-plaintext highlighter-rouge">Box&lt;T&gt;</code> and
+<code class="language-plaintext highlighter-rouge">T</code>. <sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote" rel="footnote">2</a></sup></p>
+
+<p>Another example where this may be useful is in implementations of the <a href="https://doc.rust-lang.org/stable/std/error/trait.Error.html"><code class="language-plaintext highlighter-rouge">Error</code>
+trait</a>. Suppose I have an error type that looks like this:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">struct</span> <span class="n">MyError</span> <span class="p">{</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">Box</span><span class="o">&lt;</span><span class="n">dyn</span> <span class="n">Error</span> <span class="o">+</span> <span class="nv">'static</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+    <span class="cm">/* ... */</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">Error</code> trait has a <code class="language-plaintext highlighter-rouge">source()</code> method that allows you to specify a wrapped
+“source” error. In my case, if my error value has a source, I’m storing it as a
+trait object in a <code class="language-plaintext highlighter-rouge">Box</code>, but that has to be adapted to match the type required
+by the <code class="language-plaintext highlighter-rouge">source()</code> method. In the past, I’d write the method like this:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span> <span class="n">Error</span> <span class="k">for</span> <span class="n">MyError</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">source</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="p">(</span><span class="n">dyn</span> <span class="n">Error</span> <span class="o">+</span> <span class="nv">'static</span><span class="p">)</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.source</span><span class="nf">.as_ref</span><span class="p">()</span><span class="nf">.map</span><span class="p">(</span><span class="nn">Box</span><span class="p">::</span><span class="n">as_ref</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This can also be made simpler using <code class="language-plaintext highlighter-rouge">Option::as_deref()</code>, since <code class="language-plaintext highlighter-rouge">Box&lt;T&gt;</code>
+implements <code class="language-plaintext highlighter-rouge">Deref&lt;Target = T&gt;</code>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span> <span class="n">Error</span> <span class="k">for</span> <span class="n">MyError</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">source</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="p">(</span><span class="n">dyn</span> <span class="n">Error</span> <span class="o">+</span> <span class="nv">'static</span><span class="p">)</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.source</span><span class="nf">.as_deref</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h1 id="friends-of-optionas_deref">Friends of <code class="language-plaintext highlighter-rouge">Option::as_deref</code></h1>
+
+<p>In this post I used <code class="language-plaintext highlighter-rouge">Option::as_deref</code> because it is the simplest (and probably
+most useful) variant, but there are several related methods that perform
+similar conversions:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Option</code> has another method, <a href="https://doc.rust-lang.org/stable/std/option/enum.Option.html#method.as_deref_mut"><code class="language-plaintext highlighter-rouge">as_deref_mut</code></a>, which
+does the same thing but for mutable references. Instead of <code class="language-plaintext highlighter-rouge">Deref</code>, it
+requires <code class="language-plaintext highlighter-rouge">T: DerefMut</code>, and converts a <code class="language-plaintext highlighter-rouge">&amp;mut Option&lt;T&gt;</code> into <code class="language-plaintext highlighter-rouge">Option&lt;&amp;mut &lt;T as
+Deref&gt;::Target&gt;</code>.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Result</code> has its own <a href="https://doc.rust-lang.org/stable/std/result/enum.Result.html#method.as_deref"><code class="language-plaintext highlighter-rouge">as_deref</code></a> and
+<a href="https://doc.rust-lang.org/stable/std/result/enum.Result.html#method.as_deref_mut"><code class="language-plaintext highlighter-rouge">as_deref_mut</code></a>, which convert <code class="language-plaintext highlighter-rouge">&amp;[mut] Result&lt;T, E&gt;</code>
+into <code class="language-plaintext highlighter-rouge">Result&lt;&amp;[mut] &lt;T as Deref&gt;::Target, &amp;[mut] E&gt;</code>.</p>
+  </li>
+</ul>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p><code class="language-plaintext highlighter-rouge">Option::as_deref</code> caught my eye because it was an interesting shorthand for a
+method chain that I was used to writing by hand. Frankly, I wasn’t sure if I
+was going to use it over the alternatives. I generally prefer being explicit
+over being concise when writing code; I don’t mind having to write a few extra
+characters that will take at most a few seconds of my time, and <code class="language-plaintext highlighter-rouge">as_deref</code> just
+seemed to be a bit too complex and obscure for my liking.</p>
+
+<p>However, as I’ve thought more about it, <code class="language-plaintext highlighter-rouge">as_deref</code> is quite powerful,
+especially because of how versatile, portable, and adaptive it is. As I
+mentioned in one of the footnotes (<sup id="fnref:2:1" role="doc-noteref"><a href="#fn:2" class="footnote" rel="footnote">2</a></sup>), in some cases, you could change the
+storage type of a value, like <code class="language-plaintext highlighter-rouge">Option&lt;String&gt;</code> to <code class="language-plaintext highlighter-rouge">Option&lt;Box&lt;str&gt;&gt;</code>, and
+<code class="language-plaintext highlighter-rouge">as_deref</code> would continue to work just fine with the new type. It would even
+produce the exact same output type!</p>
+
+<p>Because of this, I think it has the potential to <em>reduce</em> mental effort and
+technical debt. And the potential for confusion caused by its relative
+obscurity can also be reduced if it is used more often and becomes more
+familiar. So I think I am going to give it a try, and I encourage you to try it
+too, if you aren’t using it already!</p>
+
+<hr />
+
+<h1 id="footnotes">Footnotes</h1>
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+
+      <p>Technically these semantics are provided by the <code class="language-plaintext highlighter-rouge">Borrow</code>/<code class="language-plaintext highlighter-rouge">BorrowMut</code> and
+<code class="language-plaintext highlighter-rouge">ToOwned</code> traits, but in most cases, any type that implements
+<code class="language-plaintext highlighter-rouge">Borrow</code>/<code class="language-plaintext highlighter-rouge">BorrowMut</code> probably also implements <code class="language-plaintext highlighter-rouge">Deref</code>/<code class="language-plaintext highlighter-rouge">DerefMut</code> in the same
+way. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:2" role="doc-endnote">
+
+      <p>The impl of <code class="language-plaintext highlighter-rouge">Deref&lt;Target = T&gt;</code> for <code class="language-plaintext highlighter-rouge">Box&lt;T&gt;</code> is <em>incredibly useful</em> in this
+case. If we wanted to change the storage of the string, for example so that it
+is a <a href="https://users.rust-lang.org/t/use-case-for-box-str-and-string/8295/4"><code class="language-plaintext highlighter-rouge">Box&lt;str&gt;</code> instead of a <code class="language-plaintext highlighter-rouge">String</code></a>, <code class="language-plaintext highlighter-rouge">Option::as_deref()</code> would
+still work and would still provide us with an <code class="language-plaintext highlighter-rouge">Option&lt;&amp;str&gt;</code> because of this
+impl. And it would also work for replacing <code class="language-plaintext highlighter-rouge">Vec&lt;T&gt;</code> with a <code class="language-plaintext highlighter-rouge">Box&lt;[T]&gt;</code>. <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a> <a href="#fnref:2:1" class="reversefootnote" role="doc-backlink">&#8617;<sup>2</sup></a></p>
+    </li>
+  </ol>
+</div>
+
+  </div><a class="u-url" href="/2021/07/12/option-as-deref.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Adam Gausmann</li><li><a class="u-email" href="mailto:agausmann@fastmail.com">agausmann@fastmail.com</a></li></ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/agausmann"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">agausmann</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3">
+        <p>How do blog, please help</p><p>
+    <a property="dct:title" rel="cc:attributionURL" href="https://gaussian.dev">
+        gaussian.dev
+    </a>
+    © 2022
+    <a
+        href="http://creativecommons.org/licenses/by/4.0/?ref=chooser-v1"
+        target="_blank"
+        rel="license noopener noreferrer"
+        style="display:inline-block;"
+    >
+        CC BY 4.0
+        <img
+            style="height:22px!important;margin-left:3px;vertical-align:text-bottom;"
+            src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"
+        >
+        <img
+            style="height:22px!important;margin-left:3px;vertical-align:text-bottom;"
+            src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"
+        >
+    </a>
+</p> 
+</div>
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

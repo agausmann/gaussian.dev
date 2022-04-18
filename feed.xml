@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="https://gaussian.dev/feed.xml" rel="self" type="application/atom+xml" /><link href="https://gaussian.dev/" rel="alternate" type="text/html" /><updated>2022-04-18T19:37:12+00:00</updated><id>https://gaussian.dev/feed.xml</id><title type="html">gaussian.dev</title><subtitle>How do blog, please help</subtitle><author><name>Adam Gausmann</name></author><entry><title type="html">Breaking the Silence</title><link href="https://gaussian.dev/meta/2022/04/11/breaking-the-silence.html" rel="alternate" type="text/html" title="Breaking the Silence" /><published>2022-04-11T00:00:00+00:00</published><updated>2022-04-11T00:00:00+00:00</updated><id>https://gaussian.dev/meta/2022/04/11/breaking-the-silence</id><content type="html" xml:base="https://gaussian.dev/meta/2022/04/11/breaking-the-silence.html">&lt;p&gt;It has been 9 months since my last post. Not because I didn’t do anything
+interesting, but more because I had left something hanging since my first post.&lt;/p&gt;
+
+&lt;p&gt;In my first post, I promised to showcase a keyboard firmware project, and in
+fact, I did start drafting a post that I anticipated would be the first of a
+several-part series on the topic. But around that time, I ran into &lt;a href=&quot;https://github.com/Rahix/avr-hal/issues/40&quot;&gt;some
+obstacles&lt;/a&gt; that made porting the framework to AVR much more difficult in
+the near term, and because of how ubiquitous AVR microcontrollers are in
+hobbyist keyboards, it pretty much halted my progress and I lost interest.&lt;/p&gt;
+
+&lt;p&gt;After that project came and went, I did a lot of other interesting things, like
+&lt;a href=&quot;https://agausmann.github.io/global-clock&quot;&gt;Global Clock&lt;/a&gt;, &lt;a href=&quot;https://youtu.be/R5hdmBmmn0g&quot;&gt;Bad Apple in Logic World&lt;/a&gt;, and
+&lt;a href=&quot;https://github.com/agausmann/smm2-stats&quot;&gt;SMM2 Stats&lt;/a&gt;, all of which I have contemplated writing posts to
+explain some of the technical details, and I might still write them in the
+future. But every time I came back to my site, that first post haunted me, and
+I couldn’t bring myself to write about something else before addressing that.&lt;/p&gt;
+
+&lt;p&gt;Now, realistically, there were probably very few people who even knew about
+this promise. Some of my internet friends may have been mildly interested in
+hearing about it. But regardless, the weight that I ascribed to that promise
+was very disproportionate. And with my track record of leaving projects
+hanging, I’d better get used to dealing with this kind of scenario, and the
+best way I can think of is &lt;em&gt;just write a damn post!&lt;/em&gt; If the project was
+interesting enough to mention on my blog, I probably have a good reason for
+discontinuing or postponing it, and writing about those problems might solicit
+feedback or advice from others, or at the very least it will provide closure for
+me and for anybody else who might incidentally be interested.&lt;/p&gt;
+
+&lt;p&gt;I would like to be more active on here in the future; I have a lot of projects
+from the past year that could be interesting to write about, and I’m currently
+working on a very ambitious project that I hope to demonstrate soon. My next
+post might be about any one of these, but, no guarantees ;)&lt;/p&gt;
+
+&lt;h1 id=&quot;kbforge-post-mortem&quot;&gt;KBForge post-mortem&lt;/h1&gt;
+
+&lt;p&gt;If you’re curious to know exactly what happened back then, this section is for
+you:&lt;/p&gt;
+
+&lt;p&gt;In mid-2021, I started working on &lt;a href=&quot;https://github.com/agausmann/kbforge&quot;&gt;KBForge&lt;/a&gt;, a framework for writing
+keyboard firmwares. Its design took a lot of inspiration from &lt;a href=&quot;https://qmk.fm&quot;&gt;QMK&lt;/a&gt;, a
+framework that is very popular in the keyboard community, but I had some goals
+that I wanted to achieve with writing my own. In brief, the main goal was
+&lt;em&gt;modularity&lt;/em&gt;, going against the monorepo pattern used by QMK, and allowing
+keyboard drivers and user-specific configurations to be implemented as
+separate downstream libraries, using Rust’s awesome dependency management
+system.&lt;/p&gt;
+
+&lt;p&gt;The trouble came when I tried to actually write the driver modules for
+my keyboards. The embedded ecosystem in Rust has been evolving steadily, and
+projects like &lt;a href=&quot;https://github.com/mvirkkunen/usb-device&quot;&gt;usb-device&lt;/a&gt; have helped with that immensely by allowing USB
+device class implementations to be developed independent of the underlying
+hardware specifics. However, the main area where Rust (and also LLVM) is
+lacking is in support for AVR, where there are a few &lt;a href=&quot;https://github.com/Rahix/avr-hal/issues/40&quot;&gt;critical outstanding
+bugs&lt;/a&gt; that cause miscompilations in the usb-device crate, making it
+unusable on that architecture. And unfortunately, all of the programmable
+keyboards I own use AVR architectures. You’d be hard-pressed to find one that
+doesn’t, they’re in pretty much everything on the keyboard market, although
+there are a few ARM-based offerings.&lt;/p&gt;
+
+&lt;p&gt;That’s not necessarily a problem, I could just write my KBForge drivers using
+the low-level interfaces directly. I spent a little while trying to get the USB
+peripheral up and running but I didn’t have much luck. Ultimately, I decided
+pursuing this option was not worth my time, and so I stopped working on it and
+moved on to other things.&lt;/p&gt;
+
+&lt;p&gt;In general, I think the core of the framework, the part that links all the
+modules together, is complete and totally usable. The options for user
+configuration are definitely lacking, but I expected that area to evolve as the
+various use cases appeared in practical applications. The only blocking issue
+at the moment is getting USB HID working on AVR. So if the Rust AVR situation
+improves, I might come back to it at some point, but for now the project is on
+hiatus.&lt;/p&gt;</content><author><name>Adam Gausmann</name></author><category term="meta" /><summary type="html">It has been 9 months since my last post. Not because I didn’t do anything interesting, but more because I had left something hanging since my first post.</summary></entry><entry><title type="html">Rust Tip: Option::as_deref and friends</title><link href="https://gaussian.dev/2021/07/12/option-as-deref.html" rel="alternate" type="text/html" title="Rust Tip: Option::as_deref and friends" /><published>2021-07-12T00:00:00+00:00</published><updated>2021-07-12T00:00:00+00:00</updated><id>https://gaussian.dev/2021/07/12/option-as-deref</id><content type="html" xml:base="https://gaussian.dev/2021/07/12/option-as-deref.html">&lt;p&gt;In Rust, it is not uncommon to have to convert something like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;amp;Option&amp;lt;String&amp;gt;&lt;/code&gt;
+into &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option&amp;lt;&amp;amp;str&amp;gt;&lt;/code&gt;. For example, imagine I’m storing an optional text
+description in a type, like this:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;pub&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Foo&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;cm&quot;&gt;/* ... */&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;If I wanted someone with a reference to a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Foo&lt;/code&gt; to be able to access the
+value of the description, I could create a getter, which usually looks like
+this:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Foo&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pub&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;description&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.description&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.as_ref&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.as_str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+
+        &lt;span class=&quot;c&quot;&gt;// Or:&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;// self.description.as_ref().map(String::as_str)&lt;/span&gt;
+
+        &lt;span class=&quot;c&quot;&gt;// Or even (because String implements Deref&amp;lt;Target = str&amp;gt;):&lt;/span&gt;
+        &lt;span class=&quot;c&quot;&gt;// self.description.as_ref().map(|string| &amp;amp;*string)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;However, you can write this even more concisely, using &lt;a href=&quot;https://doc.rust-lang.org/stable/std/option/enum.Option.html#method.as_deref&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option::as_deref&lt;/code&gt;&lt;/a&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Foo&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pub&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;description&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.description&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.as_deref&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;So what’s happening here? You can see in the &lt;a href=&quot;https://doc.rust-lang.org/1.53.0/src/core/option.rs.html#1181&quot;&gt;source code&lt;/a&gt;, it looks very
+similar to our own long-hand implementation, but more generic. This is what it
+looks like, at the time of writing (Rust 1.53.0):&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Deref&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;pub&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;as_deref&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;T&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Target&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.as_ref&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.deref&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;When I call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;some_option.as_deref()&lt;/code&gt;, it takes a reference to the inner value, and
+dereferences it using the type’s &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Deref&lt;/code&gt; implementation. In our specific
+case, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;String&lt;/code&gt; implements &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Deref&amp;lt;Target = str&amp;gt;&lt;/code&gt;, so it goes from
+an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;amp;Option&amp;lt;String&amp;gt;&lt;/code&gt;, to an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option&amp;lt;&amp;amp;String&amp;gt;&lt;/code&gt;, to an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option&amp;lt;&amp;amp;str&amp;gt;&lt;/code&gt;. Just like
+our original code!&lt;/p&gt;
+
+&lt;p&gt;This works for any type that implements &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Deref&lt;/code&gt;. In this case, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;String&lt;/code&gt;
+implements &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Deref&amp;lt;Target = str&amp;gt;&lt;/code&gt;, which allows a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;amp;String&lt;/code&gt; to be converted into
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;amp;str&lt;/code&gt;. In human terms, we would call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;String&lt;/code&gt; (a string buffer) the “owned”
+string type, and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;str&lt;/code&gt; (a string slice) as the “borrowed” string type. &lt;sup id=&quot;fnref:1&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:1&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;1&lt;/a&gt;&lt;/sup&gt;
+This implementation is also provided for other “owned” and “borrowed” type
+pairs, like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;[T]&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CString&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CStr&lt;/code&gt;, and even &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt; and
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;T&lt;/code&gt;. &lt;sup id=&quot;fnref:2&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:2&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;2&lt;/a&gt;&lt;/sup&gt;&lt;/p&gt;
+
+&lt;p&gt;Another example where this may be useful is in implementations of the &lt;a href=&quot;https://doc.rust-lang.org/stable/std/error/trait.Error.html&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Error&lt;/code&gt;
+trait&lt;/a&gt;. Suppose I have an error type that looks like this:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;pub&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyError&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;source&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Box&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dyn&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;'static&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;cm&quot;&gt;/* ... */&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Error&lt;/code&gt; trait has a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;source()&lt;/code&gt; method that allows you to specify a wrapped
+“source” error. In my case, if my error value has a source, I’m storing it as a
+trait object in a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Box&lt;/code&gt;, but that has to be adapted to match the type required
+by the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;source()&lt;/code&gt; method. In the past, I’d write the method like this:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyError&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;source&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dyn&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;'static&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.source&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.as_ref&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nn&quot;&gt;Box&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;as_ref&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This can also be made simpler using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option::as_deref()&lt;/code&gt;, since &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt;
+implements &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Deref&amp;lt;Target = T&amp;gt;&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-rust highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;impl&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MyError&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;fn&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;source&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Option&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;amp;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dyn&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;'static&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;py&quot;&gt;.source&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;.as_deref&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;friends-of-optionas_deref&quot;&gt;Friends of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option::as_deref&lt;/code&gt;&lt;/h1&gt;
+
+&lt;p&gt;In this post I used &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option::as_deref&lt;/code&gt; because it is the simplest (and probably
+most useful) variant, but there are several related methods that perform
+similar conversions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option&lt;/code&gt; has another method, &lt;a href=&quot;https://doc.rust-lang.org/stable/std/option/enum.Option.html#method.as_deref_mut&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;as_deref_mut&lt;/code&gt;&lt;/a&gt;, which
+does the same thing but for mutable references. Instead of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Deref&lt;/code&gt;, it
+requires &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;T: DerefMut&lt;/code&gt;, and converts a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;amp;mut Option&amp;lt;T&amp;gt;&lt;/code&gt; into &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option&amp;lt;&amp;amp;mut &amp;lt;T as
+Deref&amp;gt;::Target&amp;gt;&lt;/code&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Result&lt;/code&gt; has its own &lt;a href=&quot;https://doc.rust-lang.org/stable/std/result/enum.Result.html#method.as_deref&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;as_deref&lt;/code&gt;&lt;/a&gt; and
+&lt;a href=&quot;https://doc.rust-lang.org/stable/std/result/enum.Result.html#method.as_deref_mut&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;as_deref_mut&lt;/code&gt;&lt;/a&gt;, which convert &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;amp;[mut] Result&amp;lt;T, E&amp;gt;&lt;/code&gt;
+into &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Result&amp;lt;&amp;amp;[mut] &amp;lt;T as Deref&amp;gt;::Target, &amp;amp;[mut] E&amp;gt;&lt;/code&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option::as_deref&lt;/code&gt; caught my eye because it was an interesting shorthand for a
+method chain that I was used to writing by hand. Frankly, I wasn’t sure if I
+was going to use it over the alternatives. I generally prefer being explicit
+over being concise when writing code; I don’t mind having to write a few extra
+characters that will take at most a few seconds of my time, and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;as_deref&lt;/code&gt; just
+seemed to be a bit too complex and obscure for my liking.&lt;/p&gt;
+
+&lt;p&gt;However, as I’ve thought more about it, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;as_deref&lt;/code&gt; is quite powerful,
+especially because of how versatile, portable, and adaptive it is. As I
+mentioned in one of the footnotes (&lt;sup id=&quot;fnref:2:1&quot; role=&quot;doc-noteref&quot;&gt;&lt;a href=&quot;#fn:2&quot; class=&quot;footnote&quot; rel=&quot;footnote&quot;&gt;2&lt;/a&gt;&lt;/sup&gt;), in some cases, you could change the
+storage type of a value, like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option&amp;lt;String&amp;gt;&lt;/code&gt; to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option&amp;lt;Box&amp;lt;str&amp;gt;&amp;gt;&lt;/code&gt;, and
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;as_deref&lt;/code&gt; would continue to work just fine with the new type. It would even
+produce the exact same output type!&lt;/p&gt;
+
+&lt;p&gt;Because of this, I think it has the potential to &lt;em&gt;reduce&lt;/em&gt; mental effort and
+technical debt. And the potential for confusion caused by its relative
+obscurity can also be reduced if it is used more often and becomes more
+familiar. So I think I am going to give it a try, and I encourage you to try it
+too, if you aren’t using it already!&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h1 id=&quot;footnotes&quot;&gt;Footnotes&lt;/h1&gt;
+
+&lt;div class=&quot;footnotes&quot; role=&quot;doc-endnotes&quot;&gt;
+  &lt;ol&gt;
+    &lt;li id=&quot;fn:1&quot; role=&quot;doc-endnote&quot;&gt;
+
+      &lt;p&gt;Technically these semantics are provided by the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Borrow&lt;/code&gt;/&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;BorrowMut&lt;/code&gt; and
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ToOwned&lt;/code&gt; traits, but in most cases, any type that implements
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Borrow&lt;/code&gt;/&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;BorrowMut&lt;/code&gt; probably also implements &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Deref&lt;/code&gt;/&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DerefMut&lt;/code&gt; in the same
+way. &lt;a href=&quot;#fnref:1&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li id=&quot;fn:2&quot; role=&quot;doc-endnote&quot;&gt;
+
+      &lt;p&gt;The impl of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Deref&amp;lt;Target = T&amp;gt;&lt;/code&gt; for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Box&amp;lt;T&amp;gt;&lt;/code&gt; is &lt;em&gt;incredibly useful&lt;/em&gt; in this
+case. If we wanted to change the storage of the string, for example so that it
+is a &lt;a href=&quot;https://users.rust-lang.org/t/use-case-for-box-str-and-string/8295/4&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Box&amp;lt;str&amp;gt;&lt;/code&gt; instead of a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;String&lt;/code&gt;&lt;/a&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option::as_deref()&lt;/code&gt; would
+still work and would still provide us with an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Option&amp;lt;&amp;amp;str&amp;gt;&lt;/code&gt; because of this
+impl. And it would also work for replacing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Vec&amp;lt;T&amp;gt;&lt;/code&gt; with a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Box&amp;lt;[T]&amp;gt;&lt;/code&gt;. &lt;a href=&quot;#fnref:2&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;/a&gt; &lt;a href=&quot;#fnref:2:1&quot; class=&quot;reversefootnote&quot; role=&quot;doc-backlink&quot;&gt;&amp;#8617;&lt;sup&gt;2&lt;/sup&gt;&lt;/a&gt;&lt;/p&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;</content><author><name>Adam Gausmann</name></author><summary type="html">In Rust, it is not uncommon to have to convert something like &amp;amp;Option&amp;lt;String&amp;gt; into Option&amp;lt;&amp;amp;str&amp;gt;. For example, imagine I’m storing an optional text description in a type, like this:</summary></entry><entry><title type="html">Hello World!</title><link href="https://gaussian.dev/meta/2021/06/03/hello-world.html" rel="alternate" type="text/html" title="Hello World!" /><published>2021-06-03T00:00:00+00:00</published><updated>2021-06-03T00:00:00+00:00</updated><id>https://gaussian.dev/meta/2021/06/03/hello-world</id><content type="html" xml:base="https://gaussian.dev/meta/2021/06/03/hello-world.html">&lt;p&gt;I think this marks the third or fourth time that I’ve tried to start a blog.
+My previous attempts never got anywhere because I never decided to sit down and
+write about anything I was doing.  More often than not, I had a project idea
+that I would work on for a few weeks, and either I got stuck and burned out or
+I got bored and moved on.  However, lately I’ve found some projects that I
+seriously enjoy working on, and with them comes a lot of new experiences that I
+want to share with others.&lt;/p&gt;
+
+&lt;p&gt;At the moment, that sharing happens with my friends in private or semi-private
+chat groups.  (I say semi-private because some of the groups are technically
+“public,” but in practice the audience is limited based around whatever
+specific common interest that chat group was created for.)  With that in mind,
+the idea for this blog is, whenever I have such a project that I want to share
+with others, instead of directing it only to smaller groups, I can write about
+them here for the general public to enjoy.  I don’t plan on following any fixed
+post schedule, but I will generally aim to post every one to two months with
+the details of a recent adventure of mine.&lt;/p&gt;
+
+&lt;p&gt;So, welcome! I’m excited to have you all along for the ride.  My first real
+post will hopefully be published sometime in June or July.  It will be about my
+current project, a novel library for PC keyboard firmwares, written in the
+&lt;a href=&quot;https://rust-lang.org&quot;&gt;Rust programming language&lt;/a&gt;.  I can’t wait to share it with you all!&lt;/p&gt;</content><author><name>Adam Gausmann</name></author><category term="meta" /><summary type="html">I think this marks the third or fourth time that I’ve tried to start a blog. My previous attempts never got anywhere because I never decided to sit down and write about anything I was doing. More often than not, I had a project idea that I would work on for a few weeks, and either I got stuck and burned out or I got bored and moved on. However, lately I’ve found some projects that I seriously enjoy working on, and with them comes a lot of new experiences that I want to share with others.</summary></entry></feed>
